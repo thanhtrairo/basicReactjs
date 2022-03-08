@@ -59,14 +59,30 @@
             const [courses, setCourse] = React.useState('react')
             const [infors, setInfors] = React.useState([])
             
+            const inputName = React.useRef()
+            
+            React.useEffect(() => {
+                alert('Empty member')
+            },[])
+
             const addMember = () => {
-                setInfors(prev => {
-                    const newInfor = [...prev,{name, age, courses}]
-                    return newInfor
-                })
+                
+                if(name && age) {
+                    inputName.current.focus()
+                    setName('')
+                    setAge('')
+                    setInfors(prev => {
+                        const newInfor = [...prev,{name, age, courses}]
+                        return newInfor
+                    })
+                }else {
+                    alert('Enter your name and age')
+                }
             }
 
-            
+            const handleInputName = e => {
+                
+            }
 
             return (
                 <div>
@@ -74,6 +90,7 @@
                     <h2>Form add member</h2>
                     <label htmlFor="name">name</label>
                     <input
+                        ref={inputName}
                         value={name}
                         onChange={e => setName(e.target.value)} 
                     />
