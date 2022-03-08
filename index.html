@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script> 
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script type="text/babel">
+        const arrcourses = ['react','java']
+        
+        function Member({infors}) {
+
+            const tranferCouses = (courses) => {
+                
+            }   
+
+            return (
+                <div>
+                    <h2>list member of React class</h2>
+                    <ul>
+                        {infors.map((infor,index) => (
+                            infor.courses === "react" &&
+                            <li 
+                                key={index}
+                            >
+                                {infor.name} - {infor.age}
+                                <button onClick={() => tranferCouses(infor.courses)}>tranfer</button>
+                            </li>
+                        ))}
+                    </ul>
+                    <h2>list member of Java class</h2>
+                    <ul>
+                        {infors.map((infor,index) => (
+                            infor.courses === "java" &&
+                            <li 
+                                key={index}
+                            >
+                                {infor.name} - {infor.age}
+                                <button onClick={() => tranferCouses(infor.courses)}>tranfer</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )
+        }
+
+        function Post() {
+            const [name, setName] = React.useState('')
+            const [age, setAge] = React.useState('')
+            const [courses, setCourse] = React.useState('react')
+            const [infors, setInfors] = React.useState([])
+            
+            const addMember = () => {
+                setInfors(prev => {
+                    const newInfor = [...prev,{name, age, courses}]
+                    return newInfor
+                })
+            }
+
+            
+
+            return (
+                <div>
+                    <Member infors={infors} />
+                    <h2>Form add member</h2>
+                    <label htmlFor="name">name</label>
+                    <input
+                        value={name}
+                        onChange={e => setName(e.target.value)} 
+                    />
+                    <label htmlFor="age">age</label>
+                    <input
+                        value={age}
+                        onChange={e => setAge(e.target.value)} 
+                    />
+                    <select onChange={e => setCourse(e.target.value)}>
+                        {arrcourses.map((course,index) => (
+                            <option
+                                key={index}
+                                value={course}
+                            >
+                                {course}
+                            </option>
+                        ))}
+                    </select><br />
+                    <button onClick={addMember}>add member</button>
+                </div>
+            )
+        }
+
+        ReactDOM.render(<Post />, document.getElementById("root"))
+    </script>
+</body>
+</html>
