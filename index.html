@@ -15,106 +15,180 @@
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
     <script type="text/babel">
-        const arrcourses = ['react','java']
-        
-        function Member({infors}) {
 
-            const tranferCouses = (courses) => {
-                
-            }   
+        function Member(props) {
+            const {name, age, handleTranfer, handleEditMember} = props
+            return (
+                <div>
+                    <span>{name} - {age}</span>
+                    <button onClick={handleTranfer}>Transfer</button>
+                    <button onClick={handleEditMember}>Edit</button>
+                </div>
+            )
+        }
+
+        function TranferMember() {
+
+            const UNIT_DATA = {
+                name: '',
+                age: '',
+                classType: 'react'
+            }
+
+            const [reactMembers, setReactmembers] = React.useState(() => {
+                const members = JSON.parse(localStorage.getItem('members'))
+                if (members && members.reactMembers) {
+                    return members.reactMembers
+                }else {
+                    return []
+                }
+            })
+
+            const [javaMembers, setJavamembers] = React.useState(() => {
+                const members = JSON.parse(localStorage.getItem('members'))
+                if (members && members.javaMembers) {
+                    return members.javaMembers
+                }else {
+                    return []
+                }
+            })
+
+            const [form, setForm] = React.useState(UNIT_DATA)
+
+            const tranferReactToJava = (index) => {
+                const memberTranfer = reactMembers[index]
+                reactMembers.splice(index,1)
+                javaMembers.push(memberTranfer)
+                setReactmembers([...reactMembers])
+                setJavamembers([...javaMembers])
+            }
+
+            const tranferJavaToReact = (index) => {
+                const memberTranfer = javaMembers[index]
+                javaMembers.splice(index,1)
+                reactMembers.push(memberTranfer)
+                setJavamembers([...javaMembers])
+                setReactmembers([...reactMembers])
+            }
+
+            const handleEditMember = (index) => {
+                reactMembers.map(user => {
+                    if(user == reactMembers[index]) {
+                        setForm({
+                            name: user.name,
+                            age: user.age,
+                            classType: user.classType
+                        })
+                    }
+                })
+                javaMembers.map(user => {
+                    if(user == javaMembers[index]) {
+                        setForm({
+                            name: user.name,
+                            age: user.age,
+                            classType: user.classType
+                        })
+                    }
+                })
+            }
+
+            const saveData = () => {
+                localStorage.setItem('members', JSON.stringify({
+                    javaMembers,
+                    reactMembers,
+                }))
+            }
+            React.useEffect(() => {
+                if (reactMembers.length === 0) {
+                    alert('empty react')
+                }else if (javaMembers.length === 0) {
+                    alert('empty java')
+                }
+                saveData()
+
+            },[reactMembers.length, javaMembers.length])
+
+            const handleInput = (e) => {
+                setForm({
+                   ...form,
+                   [e.target.name]: e.target.value
+                })
+            }
+            
+            const handleSubmit = () => {
+                if (form.classType === 'react') {
+                    console.log('react')
+                    reactMembers.push(form);
+                    setReactmembers([...reactMembers])
+                } else {
+                    console.log('java')
+                    javaMembers.push(form)
+                    setJavamembers([...javaMembers])
+                }
+                setForm(UNIT_DATA)
+            }
+
+            const handleUpdate = () => {
+
+            }
 
             return (
                 <div>
                     <h2>list member of React class</h2>
-                    <ul>
-                        {infors.map((infor,index) => (
-                            infor.courses === "react" &&
-                            <li 
-                                key={index}
-                            >
-                                {infor.name} - {infor.age}
-                                <button onClick={() => tranferCouses(infor.courses)}>tranfer</button>
-                            </li>
-                        ))}
-                    </ul>
+                    {reactMembers.length > 0 ? reactMembers.map((user,index) => (
+                        <Member 
+                            name={user.name}
+                            age={user.age}
+                            key={index}
+                            handleTranfer={() => tranferReactToJava(index)}
+                            handleEditMember={() => handleEditMember(index)}
+                        />
+                    )): 'empty react'}
                     <h2>list member of Java class</h2>
-                    <ul>
-                        {infors.map((infor,index) => (
-                            infor.courses === "java" &&
-                            <li 
-                                key={index}
-                            >
-                                {infor.name} - {infor.age}
-                                <button onClick={() => tranferCouses(infor.courses)}>tranfer</button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )
-        }
-
-        function Post() {
-            const [name, setName] = React.useState('')
-            const [age, setAge] = React.useState('')
-            const [courses, setCourse] = React.useState('react')
-            const [infors, setInfors] = React.useState([])
-            
-            const inputName = React.useRef()
-            
-            React.useEffect(() => {
-                alert('Empty member')
-            },[])
-
-            const addMember = () => {
-                
-                if(name && age) {
-                    inputName.current.focus()
-                    setName('')
-                    setAge('')
-                    setInfors(prev => {
-                        const newInfor = [...prev,{name, age, courses}]
-                        return newInfor
-                    })
-                }else {
-                    alert('Enter your name and age')
-                }
-            }
-
-            const handleInputName = e => {
-                
-            }
-
-            return (
-                <div>
-                    <Member infors={infors} />
+                    {javaMembers.length > 0 ? javaMembers.map((user,index) => (
+                        <Member 
+                            name={user.name}
+                            age={user.age}
+                            key={index}
+                            handleTranfer={() => tranferJavaToReact(index)}
+                        />
+                    )): 'empty java'}
                     <h2>Form add member</h2>
-                    <label htmlFor="name">name</label>
-                    <input
-                        ref={inputName}
-                        value={name}
-                        onChange={e => setName(e.target.value)} 
-                    />
-                    <label htmlFor="age">age</label>
-                    <input
-                        value={age}
-                        onChange={e => setAge(e.target.value)} 
-                    />
-                    <select onChange={e => setCourse(e.target.value)}>
-                        {arrcourses.map((course,index) => (
-                            <option
-                                key={index}
-                                value={course}
-                            >
-                                {course}
-                            </option>
-                        ))}
-                    </select><br />
-                    <button onClick={addMember}>add member</button>
+                    <form 
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            handleSubmit()
+                        }}
+                    >
+                        <label htmlFor="name">name</label>
+                        <input
+                            id="name"
+                            name='name'
+                            value={form.name}
+                            onChange={e => handleInput(e)}
+                        />
+                        <label htmlFor="age">age</label>
+                        <input
+                            id="age"
+                            name='age'
+                            value={form.age}
+                            onChange={e => handleInput(e)}
+                        />
+                        <select
+                            name='classType'
+                            value={form.classType} 
+                            onChange={e => handleInput(e)}
+                        >
+                            <option value="react">React</option>
+                            <option value="java">Java</option>
+                        </select><br />
+                        <button>add member</button>
+                    </form>
                 </div>
             )
         }
 
-        ReactDOM.render(<Post />, document.getElementById("root"))
+        ReactDOM.render(<TranferMember />, document.getElementById("root"))
     </script>
 </body>
 </html>
