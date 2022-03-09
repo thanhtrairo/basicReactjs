@@ -30,6 +30,7 @@
         function TranferMember() {
 
             const UNIT_DATA = {
+                id: null,
                 name: '',
                 age: '',
                 classType: 'react'
@@ -71,27 +72,6 @@
                 setReactmembers([...reactMembers])
             }
 
-            const handleEditMember = (index) => {
-                reactMembers.map(user => {
-                    if(user == reactMembers[index]) {
-                        setForm({
-                            name: user.name,
-                            age: user.age,
-                            classType: user.classType
-                        })
-                    }
-                })
-                javaMembers.map(user => {
-                    if(user == javaMembers[index]) {
-                        setForm({
-                            name: user.name,
-                            age: user.age,
-                            classType: user.classType
-                        })
-                    }
-                })
-            }
-
             const saveData = () => {
                 localStorage.setItem('members', JSON.stringify({
                     javaMembers,
@@ -107,31 +87,56 @@
                 saveData()
 
             },[reactMembers.length, javaMembers.length])
-
+            const randomId = () => Math.floor(Math.random() * 10000)
             const handleInput = (e) => {
                 setForm({
                    ...form,
+                   id: randomId(),
                    [e.target.name]: e.target.value
                 })
             }
             
             const handleSubmit = () => {
-                if (form.classType === 'react') {
-                    console.log('react')
-                    reactMembers.push(form);
-                    setReactmembers([...reactMembers])
+                if(!edit) {
+                    if (form.classType === 'react') {
+                        reactMembers.push(form);
+                        setReactmembers([...reactMembers])
+                    } else {
+                        javaMembers.push(form)
+                        setJavamembers([...javaMembers])
+                    }
                 } else {
-                    console.log('java')
-                    javaMembers.push(form)
-                    setJavamembers([...javaMembers])
+                    setReactmembers(reactMembers.map(member => (
+                        member.id === edit ? {...form} : member
+                    )))
+                    setJavamembers(javaMembers.map(member => (
+                        member.id === edit ? {...form} : member
+                    )))
                 }
                 setForm(UNIT_DATA)
+                setEdit()
+            }
+            
+            const [edit, setEdit] = React.useState()
+
+            const handleEditMember = (id) => {
+                setEdit(id)
+                reactMembers.map(member => {
+                    if(member.id === id) {
+                        setForm(member)
+                    }
+                })
+                javaMembers.map(member => {
+                    if(member.id === id) {
+                        setForm(member)
+                    }
+                })
             }
 
             const handleUpdate = () => {
 
             }
-
+            
             return (
                 <div>
                     <h2>list member of React class</h2>
@@ -139,9 +144,9 @@
                         <Member 
                             name={user.name}
                             age={user.age}
-                            key={index}
+                            key={user.id}
                             handleTranfer={() => tranferReactToJava(index)}
-                            handleEditMember={() => handleEditMember(index)}
+                            handleEditMember={() => handleEditMember(user.id)}
                         />
                     )): 'empty react'}
                     <h2>list member of Java class</h2>
@@ -149,8 +154,9 @@
                         <Member 
                             name={user.name}
                             age={user.age}
-                            key={index}
+                            key={user.id}
                             handleTranfer={() => tranferJavaToReact(index)}
+                            handleEditMember={() => handleEditMember(user.id)}
                         />
                     )): 'empty java'}
                     <h2>Form add member</h2>
@@ -182,7 +188,7 @@
                             <option value="react">React</option>
                             <option value="java">Java</option>
                         </select><br />
-                        <button>add member</button>
+                        <button >{edit ? 'Update' : 'add member'}</button>
                     </form>
                 </div>
             )
