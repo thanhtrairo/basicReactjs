@@ -17,12 +17,13 @@
     <script type="text/babel">
 
         function Member(props) {
-            const {name, age, handleTranfer, handleEditMember} = props
+            const {name, age, handleTranfer, handleEditMember, handleRemoveMember} = props
             return (
                 <div>
                     <span>{name} - {age}</span>
                     <button onClick={handleTranfer}>Transfer</button>
                     <button onClick={handleEditMember}>Edit</button>
+                    <button onClick={handleRemoveMember}>Remove</button>
                 </div>
             )
         }
@@ -86,7 +87,7 @@
                 }
                 saveData()
 
-            },[reactMembers.length, javaMembers.length])
+            },[reactMembers, javaMembers])
             const randomId = () => Math.floor(Math.random() * 10000)
             const handleInput = (e) => {
                 setForm({
@@ -107,10 +108,10 @@
                     }
                 } else {
                     setReactmembers(reactMembers.map(member => (
-                        member.id === edit ? {...form} : member
+                        member.id === edit ? form : member
                     )))
                     setJavamembers(javaMembers.map(member => (
-                        member.id === edit ? {...form} : member
+                        member.id === edit ? form : member
                     )))
                 }
                 setForm(UNIT_DATA)
@@ -133,10 +134,41 @@
                 })
             }
 
-            const handleUpdate = () => {
-
+            const handleRemoveMember = (id) => {
+                setReactmembers(reactMembers.filter(member => member.id !== id))
+                setJavamembers(javaMembers.filter(member => member.id !== id))
             }
             
+            const [nameSearch, setNameSearch] = React.useState('')
+            const [memberSearch, setMemberSearch] = React.useState([])
+
+            const handleSearch = () => {
+                const arrReact = reactMembers.filter(member => member.name === nameSearch)
+                const arrJava = javaMembers.filter(member => member.name === nameSearch)
+                setMemberSearch(prev => [...prev,...arrReact,...arrJava])
+            }
+            const handleSort = () => {
+                for(let i = 0; i < reactMembers.length - 1; i++){
+                    for(let j = i+1; j < reactMembers.length; j++) {
+                        if(parseInt(reactMembers[i].age) < parseInt(reactMembers[j].age)) {
+                            let increase = reactMembers[i]
+                            reactMembers[i] = reactMembers[j]
+                            reactMembers[j] = increase
+                        }
+                    }
+                }
+                for(let i = 0; i < javaMembers.length - 1; i++){
+                    for(let j = i+1; j < javaMembers.length; j++) {
+                        if(parseInt(javaMembers[i].age) < parseInt(javaMembers[j].age)) {
+                            let increase = javaMembers[i]
+                            javaMembers[i] = javaMembers[j]
+                            javaMembers[j] = increase
+                        }
+                    }
+                }
+                setReactmembers([...reactMembers])
+                setJavamembers([...javaMembers])
+            }
             return (
                 <div>
                     <h2>list member of React class</h2>
@@ -147,8 +179,10 @@
                             key={user.id}
                             handleTranfer={() => tranferReactToJava(index)}
                             handleEditMember={() => handleEditMember(user.id)}
+                            handleRemoveMember={() => handleRemoveMember(user.id)}
                         />
                     )): 'empty react'}
+                    <button onClick={handleSort}>Sort</button>
                     <h2>list member of Java class</h2>
                     {javaMembers.length > 0 ? javaMembers.map((user,index) => (
                         <Member 
@@ -157,8 +191,29 @@
                             key={user.id}
                             handleTranfer={() => tranferJavaToReact(index)}
                             handleEditMember={() => handleEditMember(user.id)}
+                            handleRemoveMember={() => handleRemoveMember(user.id)}
                         />
                     )): 'empty java'}
+                    <button onClick={handleSort}>Sort</button>
+                    <h2>Form search</h2>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            handleSearch()
+                        }}
+                    >
+                        <input
+                            value={nameSearch}
+                            onChange={e => setNameSearch(e.target.value)}
+                        />
+                        <button>Search</button>
+                    </form>
+                    <ul>
+                        {memberSearch.length > 0 ? memberSearch.map(member => (
+                            <li key={member.id}>{member.name} - {member.age} -Class {member.classType}</li>
+                        )): <h2>not found</h2>}
+                    </ul>
+                    
                     <h2>Form add member</h2>
                     <form 
                         onSubmit={(e) => {
