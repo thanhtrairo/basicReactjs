@@ -29,15 +29,12 @@
         }
 
         const SortTitle = React.memo(({getSortText}) => {
-                // React.useEffect(() => {
-                //     console.log("fire by getSorttext");
-                // }, [getSortText])
-                console.log('sort title')
-                return (
-                    <React.Fragment>sort: {getSortText()}</React.Fragment>
-                )
-            })
-        
+            console.log('sort title')
+            return (
+                <React.Fragment>sort: {getSortText()}</React.Fragment>
+            )
+        })
+
         function TranferMember() {
 
             const UNIT_DATA = {
@@ -98,11 +95,13 @@
                 saveData()
 
             },[reactMembers, javaMembers])
-            const randomId = () => Math.floor(Math.random() * 10000)
+            // const randomId = () => Math.floor(Math.random() * 10000)
+            const randomId = React.useMemo(() => Math.floor(Math.random() * 10000), [reactMembers, javaMembers])
+            
             const handleInput = (e) => {
                 setForm({
                    ...form,
-                   id: randomId(),
+                   id: randomId,
                    [e.target.name]: e.target.value
                 })
             }
@@ -189,7 +188,6 @@
                 if (nameSearch) {
                     res = res.filter(el => el.name.includes(nameSearch))
                 }
-                console.log('get-user')
                 if(sortAge !== SORT.no) {
                     res = res.sort((a,b) => {
                         if(sortAge === SORT.up) return Number(a.age) -Number(b.age)
@@ -199,15 +197,15 @@
                 return res
             }
 
-            const renderToReact = React.useMemo(() => getUser(reactMembers), [nameSearch, sortAge])
-            const renderToJava = React.useMemo(() => getUser(javaMembers), [nameSearch, sortAge])
+            const renderToReact = React.useMemo(() => getUser(reactMembers), [reactMembers, nameSearch, sortAge])
+            const renderToJava = React.useMemo(() => getUser(javaMembers), [javaMembers, nameSearch, sortAge])
 
-            const getSortText = () => {
+            const getSortText = React.useCallback(() => {
                 console.log('getsortText')
                 if(sortAge === SORT.no) return 'No'
                 if(sortAge === SORT.up) return 'Up'
                 return 'Down'
-            }
+            },[sortAge])
 
             const handleSort = () => {
                 if (sortAge === SORT.down) {
@@ -218,8 +216,7 @@
                     setSortAge(SORT.down)
                 }
             }
-
-            
+        
             return (
                 <div>
                     <h2>Form search</h2>
@@ -227,7 +224,7 @@
                         value={nameSearch}
                         onChange={e => setNameSearch(e.target.value)}
                     /><br />
-                    <button onClick={handleSort}><SortTitle getSortText={getSortText}/></button>
+                    <button onClick={handleSort}><SortTitle getSortText={getSortText} /></button>
                     <h2>list member of React class</h2>
                     {reactMembers.length > 0 ? renderToReact.map((user,index) => (
                         <Member 
